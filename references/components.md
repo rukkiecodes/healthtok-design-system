@@ -116,6 +116,30 @@ the app already drives its option lists). One accent, no Material palette.
 
 ---
 
+## DatePicker — `DatePicker`
+
+JS-only date & time picker. Replaces `react-native-paper-dates`' `DatePickerModal` /
+`TimePickerModal` so **react-native-paper leaves the bundle entirely** — no native module.
+
+A bottom sheet (`Modal` transparent, slide-up, `scrim` backdrop) of snap-scrolling wheel
+columns, `ITEM_HEIGHT: 44`, 5 visible rows with a centred `hairline`@0.35 selection band.
+
+| Prop | |
+|---|---|
+| `mode` | `'date'` → Month · Day · Year · `'time'` → Hour · Minute (24h) |
+| `visible` / `onCancel` | sheet visibility is caller-owned; `onCancel` on scrim tap / Cancel |
+| `value` | seeds the wheels each open; date mode clamps Day to the month length |
+| `onConfirm(date)` | **always a `Date`**. For `time`, read `d.getHours()`/`getMinutes()` |
+| `title?` | centred sheet title |
+| `minYear?` / `maxYear?` | date mode; default `1920` … current year |
+
+- Cancel/Done are DS `Button` (`outline` / `primary`).
+- Migration: Paper `onConfirm={({date})=>…}` → `onConfirm={(d)=>…}`; Paper
+  `onConfirm={({hours,minutes})=>…}` → `onConfirm={(d)=>…(d.getHours(), d.getMinutes())}`.
+  Delete `registerTranslation`/`PaperProvider`; the picker is a plain sibling.
+
+---
+
 ## Card & containers
 
 - `borderRadius: radius.lg`, `borderCurve: 'continuous'`,
