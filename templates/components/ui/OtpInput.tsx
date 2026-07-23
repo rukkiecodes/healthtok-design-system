@@ -1,27 +1,24 @@
 /**
  * OTP / verification-code input — segmented boxes for a 4- or 6-digit code.
+ * Implements references/components.md §OtpInput.
  *
- * There is NO react-native-paper or third-party OTP lib. A single hidden
- * TextInput owns the value (so iOS SMS autofill and paste "just work" via
- * `textContentType="oneTimeCode"` / `autoComplete="sms-otp"`); the visible boxes
- * are pure presentation driven off that one string.
- *
- * The BORDER COLOR is the state channel, same rule as <Input>: hairline (empty)
- * → primary (the active box, or any filled box) → danger (error). Border WIDTH
- * never changes — a 2px ring would make the row jump. `onComplete` fires once the
- * last digit lands, so the caller need not watch length.
+ * A single transparent TextInput (opacity 0) overlays the row so iOS SMS autofill
+ * and paste "just work" via `textContentType="oneTimeCode"` / `autoComplete="sms-otp"`;
+ * the visible boxes are pure presentation. Each box: flex:1, aspectRatio:1,
+ * borderWidth.thin, radius.md, continuous curve, canvas bg. Border COLOR is the
+ * state channel: hairline → primary on the active slot → danger on error. Width
+ * never changes. On error the row does a horizontal shake (-8,8,-6,6,0 @ 50ms).
  *
  *   <OtpInput value={code} onChangeText={setCode} onComplete={verify} />
  *   <OtpInput length={6} value={code} onChangeText={setCode} error={err} />
  */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 
 import { ThemedText } from './ThemedText';
 import { useTheme } from '../../theme/ThemeProvider';
-import { radius, borderWidth } from '../../constants/layout';
-import { fontSize, typeface } from '../../constants/typography';
-import { normalizeSize } from '../../lib/normalize';
+import { spacing, radius, borderWidth } from '../../constants/layout';
 
 export type OtpInputProps = {
   value: string;
@@ -40,9 +37,19 @@ export function OtpInput({
   const { colors } = useTheme();
   const inputRef = useRef<TextInput>(null);
   const [focused, setFocused] = useState(false);
+  const shakeX = useSharedValue(0);
 
-  // One box is ~56pt tall; the width flexes so 4 and 6 both fill the row evenly.
-  const BOX = normalizeSize(length === 6 ? 46 : 60);
+  // Horizontal shake when an error appears — the spec's error treatment.
+  useEffect(() => {
+    if (error) {
+      shakeX.value = withSequence(
+        withTiming(-8, { duration: 50 }), withTiming(8, { duration: 50 }),
+        withTiming(-6, { duration: 50 }), withTiming(6, { duration: 50 }),
+        withTiming(0, { duration: 50 }),
+      );
+    }
+  }, [error, shakeX]);
+  const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shakeX.value }] }));
 
   const handle = (raw: string) => {
     const digits = raw.replace(/[^0-9]/g, '').slice(0, length);
@@ -51,64 +58,40 @@ export function OtpInput({
   };
 
   const cells = Array.from({ length }, (_, i) => value[i] ?? '');
-  // The "active" box is the first empty one (or the last, once full).
   const activeIndex = Math.min(value.length, length - 1);
 
   return (
-    <View style={{ gap: normalizeSize(8), alignSelf: 'stretch' }}>
-      <Pressable
-        onPress={() => inputRef.current?.focus()}
-        style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-      >
-        {cells.map((digit, i) => {
-          const isActive = focused && i === activeIndex;
-          const borderColor = error
-            ? colors.danger
-            : (digit || isActive)
-              ? colors.primary
-              : colors.hairline;
-          return (
-            <View
-              key={i}
-              style={{
-                width: BOX,
-                height: normalizeSize(56),
-                borderRadius: radius.md,
-                borderCurve: 'continuous',
-                borderWidth: borderWidth.hairline,
-                borderColor,
-                backgroundColor: colors.surfacePearl,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <ThemedText
+    <View style={{ gap: spacing.xs, alignSelf: 'stretch' }}>
+      <Pressable onPress={() => inputRef.current?.focus()}>
+        <Animated.View style={[{ flexDirection: 'row', gap: spacing.sm }, rowStyle]}>
+          {cells.map((digit, i) => {
+            const isActive = focused && i === activeIndex;
+            const borderColor = error
+              ? colors.danger
+              : (digit || isActive) ? colors.primary : colors.hairline;
+            return (
+              <View
+                key={i}
                 style={{
-                  fontFamily: typeface.semibold,
-                  fontSize: fontSize.title2,
-                  color: colors.ink,
+                  flex: 1,
+                  aspectRatio: 1,
+                  borderRadius: radius.md,
+                  borderCurve: 'continuous',
+                  borderWidth: borderWidth.thin,
+                  borderColor,
+                  backgroundColor: colors.canvas,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                {digit}
-              </ThemedText>
-              {/* Caret hint on the active, empty box. */}
-              {isActive && !digit ? (
-                <View
-                  style={{
-                    position: 'absolute',
-                    width: normalizeSize(2),
-                    height: normalizeSize(22),
-                    borderRadius: normalizeSize(1),
-                    backgroundColor: colors.primary,
-                  }}
-                />
-              ) : null}
-            </View>
-          );
-        })}
+                <ThemedText weight="semibold" size="title3" color="ink">{digit}</ThemedText>
+              </View>
+            );
+          })}
+        </Animated.View>
       </Pressable>
 
-      {/* The real input — invisible, off to the side, owns the value + autofill. */}
+      {/* The real input — transparent, overlays the row, owns the value + autofill. */}
       <TextInput
         ref={inputRef}
         value={value}
@@ -120,17 +103,11 @@ export function OtpInput({
         autoComplete="sms-otp"
         maxLength={length}
         autoFocus={autoFocus}
-        // Kept in the tree (not display:none) so focus + autofill work; parked
-        // off-screen and untouchable so the visible boxes are the only UI.
-        style={{ position: 'absolute', opacity: 0, height: 1, width: 1 }}
+        style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%' }}
         caretHidden
       />
 
-      {error ? (
-        <ThemedText style={{ fontSize: fontSize.caption, color: colors.danger }}>
-          {error}
-        </ThemedText>
-      ) : null}
+      {error ? <ThemedText size="caption" color="danger">{error}</ThemedText> : null}
     </View>
   );
 }

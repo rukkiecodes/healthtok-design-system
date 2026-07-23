@@ -11,7 +11,7 @@ description: >-
   "remove react-native-paper", "make it look Apple", or "review my UI for consistency".
 metadata:
   author: rukkiecodes
-  version: "1.0.0"
+  version: "1.1.0"
   derived-from: rukkiecodes/claude-apple-design-system
   origin: getdesign.md/apple
   reference-platform: react-native-expo

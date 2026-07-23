@@ -41,8 +41,11 @@ const ANDROID_GLYPH: Record<string, keyof typeof MaterialCommunityIcons.glyphMap
   'square.and.arrow.up': 'export-variant',
   'checkmark.seal.fill': 'check-decagram',
   checkmark: 'check',
+  'checkmark.circle.fill': 'check-circle',   // Toast success
   'exclamationmark.triangle': 'alert-outline',
+  'exclamationmark.triangle.fill': 'alert',  // Toast error
   'info.circle': 'information-outline',
+  'info.circle.fill': 'information',          // Toast info
   'questionmark.circle': 'help-circle-outline',
   'lock.fill': 'lock',
   eye: 'eye-outline',
