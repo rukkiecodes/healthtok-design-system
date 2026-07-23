@@ -106,7 +106,7 @@ function AlertDialog({ data, onClose, onRun }: { data: AlertOptions; onClose: ()
               style={{ width: normalizeSize(280), maxWidth: '100%', backgroundColor: colors.canvas, borderRadius: radius.lg, borderCurve: 'continuous', overflow: 'hidden' }}
             >
               <View style={{ padding: spacing.lg, gap: spacing.xs, alignItems: 'center' }}>
-                <ThemedText weight="semibold" size="headline" color="ink" style={{ textAlign: 'center' }}>{data.title}</ThemedText>
+                <ThemedText weight="semiBold" size="headline" color="ink" style={{ textAlign: 'center' }}>{data.title}</ThemedText>
                 {data.message ? (
                   <ThemedText size="callout" color="inkMuted80" style={{ textAlign: 'center' }}>{data.message}</ThemedText>
                 ) : null}
@@ -122,7 +122,7 @@ function AlertDialog({ data, onClose, onRun }: { data: AlertOptions; onClose: ()
                       onPress={() => onRun(b.onPress)}
                       style={({ pressed }) => ({ flex: 1, minHeight: control.heightMd, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? colors.canvasParchment : 'transparent' })}
                     >
-                      <ThemedText weight={b.style === 'cancel' ? 'semibold' : 'regular'} size="body" style={{ color: color(b) }}>
+                      <ThemedText weight={b.style === 'cancel' ? 'semiBold' : 'regular'} size="body" style={{ color: color(b) }}>
                         {b.text}
                       </ThemedText>
                     </Pressable>
@@ -173,7 +173,7 @@ function ActionSheet({ data, onClose, onRun }: { data: SheetOptions; onClose: ()
                 onPress={onClose}
                 style={({ pressed }) => ({ backgroundColor: pressed ? colors.canvasParchment : colors.canvas, borderRadius: radius.lg, borderCurve: 'continuous', minHeight: normalizeSize(52), alignItems: 'center', justifyContent: 'center' })}
               >
-                <ThemedText weight="semibold" size="body" color="primary">Cancel</ThemedText>
+                <ThemedText weight="semiBold" size="body" color="primary">Cancel</ThemedText>
               </Pressable>
             </Animated.View>
           </Pressable>

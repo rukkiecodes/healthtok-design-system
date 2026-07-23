@@ -63,7 +63,7 @@ export function Avatar({ uri, name, size = 'list' }: AvatarProps) {
           style={{ width: '100%', height: '100%' }}
         />
       ) : (
-        <ThemedText weight="semibold" size={TEXT_SIZE[size]} color="inkMuted48">
+        <ThemedText weight="semiBold" size={TEXT_SIZE[size]} color="inkMuted48">
           {initial}
         </ThemedText>
       )}

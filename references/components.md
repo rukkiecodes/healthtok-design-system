@@ -93,6 +93,29 @@ focus makes the field visibly jump.
 
 ---
 
+## Controls — `Switch` / `Checkbox` / `Radio`
+
+Replace react-native-paper's `Switch` / `Checkbox` / `RadioButton`. All three are
+**single controls** — the caller owns any group/mutual-exclusion state (matches how
+the app already drives its option lists). One accent, no Material palette.
+
+| Control | Props | Selected look | Unselected look |
+|---|---|---|---|
+| `Switch` | `value`, `onValueChange`, `disabled` | track `primary` | track `hairline` |
+| `Checkbox` | `checked`, `onChange(next)`, `disabled`, `size?=24` | `primary` fill + `checkmark` glyph `onPrimary` | `borderWidth.thin` `hairline` box, transparent |
+| `Radio` | `selected`, `onSelect`, `disabled`, `size?=22` | `borderWidth.thick` `primary` ring + centre dot (50% dia) `primary` | `borderWidth.thin` `hairline` ring |
+
+- `Switch` is a themed wrapper over RN's own `Switch` (iOS keeps a white thumb; Android
+  uses the accent thumb when on). The colour props are owned by the system — callers
+  never pass `color`/`trackColor`/`thumbColor`.
+- `Checkbox`/`Radio` are `Pressable`; `hitSlop: 8`, `opacity 0.6` while pressed,
+  `0.4` when disabled. Border WIDTH never changes on press — only `thin`→`thick` for a
+  selected Radio (the one place `thick` appears, per the borderWidth contract).
+- Migration: Paper `status={x ? 'checked':'unchecked'}` + `onPress` → `checked={x}` +
+  `onChange` (Checkbox) / `selected={x}` + `onSelect` (Radio). Drop `color`.
+
+---
+
 ## Card & containers
 
 - `borderRadius: radius.lg`, `borderCurve: 'continuous'`,

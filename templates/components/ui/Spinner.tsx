@@ -39,7 +39,7 @@ export function Spinner({ size = 'small', label, overlay, color }: SpinnerProps)
       <View style={[StyleSheet.absoluteFillObject, styles.center, { backgroundColor: colors.scrim }]}>
         {spinner}
         {label ? (
-          <ThemedText weight="semibold" size="callout" color="inkOnDark" style={{ marginTop: spacing.sm }}>
+          <ThemedText weight="semiBold" size="callout" color="inkOnDark" style={{ marginTop: spacing.sm }}>
             {label}
           </ThemedText>
         ) : null}

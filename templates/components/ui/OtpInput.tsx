@@ -84,7 +84,7 @@ export function OtpInput({
                   justifyContent: 'center',
                 }}
               >
-                <ThemedText weight="semibold" size="title3" color="ink">{digit}</ThemedText>
+                <ThemedText weight="semiBold" size="title3" color="ink">{digit}</ThemedText>
               </View>
             );
           })}
